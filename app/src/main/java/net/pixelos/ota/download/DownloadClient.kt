@@ -20,7 +20,6 @@ import java.io.File
 import java.io.IOException
 
 interface DownloadClient {
-
     /** Start the download. This method has no effect if the download already started. */
     fun start()
 
@@ -43,7 +42,12 @@ interface DownloadClient {
     }
 
     interface ProgressListener {
-        fun update(bytesRead: Long, contentLength: Long, speed: Long, eta: Long)
+        fun update(
+            bytesRead: Long,
+            contentLength: Long,
+            speed: Long,
+            eta: Long,
+        )
     }
 
     interface Headers {
@@ -66,7 +70,11 @@ interface DownloadClient {
                 this.callback ?: throw IllegalStateException("No download callback defined")
 
             return HttpURLConnectionClient(
-                url, destination, progressListener, callback, useDuplicateLinks
+                url,
+                destination,
+                progressListener,
+                callback,
+                useDuplicateLinks,
             )
         }
 
@@ -76,12 +84,14 @@ interface DownloadClient {
 
         fun setDownloadCallback(callback: DownloadCallback) = apply { this.callback = callback }
 
-        fun setProgressListener(progressListener: ProgressListener?) = apply {
-            this.progressListener = progressListener
-        }
+        fun setProgressListener(progressListener: ProgressListener?) =
+            apply {
+                this.progressListener = progressListener
+            }
 
-        fun setUseDuplicateLinks(useDuplicateLinks: Boolean) = apply {
-            this.useDuplicateLinks = useDuplicateLinks
-        }
+        fun setUseDuplicateLinks(useDuplicateLinks: Boolean) =
+            apply {
+                this.useDuplicateLinks = useDuplicateLinks
+            }
     }
 }

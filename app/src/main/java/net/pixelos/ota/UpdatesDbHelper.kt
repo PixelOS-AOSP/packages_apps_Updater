@@ -23,22 +23,34 @@ import android.provider.BaseColumns
 import net.pixelos.ota.model.Update
 import java.io.File
 
-class UpdatesDbHelper(context: Context?) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class UpdatesDbHelper(
+    context: Context?,
+) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(SQL_CREATE_ENTRIES)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(
+        db: SQLiteDatabase,
+        oldVersion: Int,
+        newVersion: Int,
+    ) {
         db.execSQL(SQL_DELETE_ENTRIES)
         onCreate(db)
     }
 
-    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+    override fun onDowngrade(
+        db: SQLiteDatabase,
+        oldVersion: Int,
+        newVersion: Int,
+    ) {
         onUpgrade(db, oldVersion, newVersion)
     }
 
-    fun addUpdateWithOnConflict(update: Update, conflictAlgorithm: Int) {
+    fun addUpdateWithOnConflict(
+        update: Update,
+        conflictAlgorithm: Int,
+    ) {
         val db = writableDatabase
         val values = ContentValues()
         fillContentValues(update, values)
@@ -58,7 +70,11 @@ class UpdatesDbHelper(context: Context?) :
         changeUpdateStatus(selection, selectionArgs, update.persistentStatus)
     }
 
-    private fun changeUpdateStatus(selection: String, selectionArgs: Array<String>, status: Int) {
+    private fun changeUpdateStatus(
+        selection: String,
+        selectionArgs: Array<String>,
+        status: Int,
+    ) {
         val db = writableDatabase
         val values = ContentValues()
         values.put(UpdateEntry.COLUMN_NAME_STATUS, status)
@@ -68,7 +84,10 @@ class UpdatesDbHelper(context: Context?) :
     val updates: List<Update>
         get() = getUpdates(null, null)
 
-    fun getUpdates(selection: String?, selectionArgs: Array<String?>?): List<Update> {
+    fun getUpdates(
+        selection: String?,
+        selectionArgs: Array<String?>?,
+    ): List<Update> {
         val db = readableDatabase
         val projection =
             arrayOf(
@@ -119,25 +138,28 @@ class UpdatesDbHelper(context: Context?) :
         const val DATABASE_NAME: String = "updates.db"
         private const val SQL_CREATE_ENTRIES =
             "CREATE TABLE " +
-                    UpdateEntry.TABLE_NAME +
-                    " (" +
-                    BaseColumns._ID +
-                    " INTEGER PRIMARY KEY," +
-                    UpdateEntry.COLUMN_NAME_STATUS +
-                    " INTEGER," +
-                    UpdateEntry.COLUMN_NAME_PATH +
-                    " TEXT," +
-                    UpdateEntry.COLUMN_NAME_DOWNLOAD_ID +
-                    " TEXT NOT NULL UNIQUE," +
-                    UpdateEntry.COLUMN_NAME_TIMESTAMP +
-                    " INTEGER," +
-                    UpdateEntry.COLUMN_NAME_VERSION +
-                    " TEXT," +
-                    UpdateEntry.COLUMN_NAME_SIZE +
-                    " INTEGER)"
+                UpdateEntry.TABLE_NAME +
+                " (" +
+                BaseColumns._ID +
+                " INTEGER PRIMARY KEY," +
+                UpdateEntry.COLUMN_NAME_STATUS +
+                " INTEGER," +
+                UpdateEntry.COLUMN_NAME_PATH +
+                " TEXT," +
+                UpdateEntry.COLUMN_NAME_DOWNLOAD_ID +
+                " TEXT NOT NULL UNIQUE," +
+                UpdateEntry.COLUMN_NAME_TIMESTAMP +
+                " INTEGER," +
+                UpdateEntry.COLUMN_NAME_VERSION +
+                " TEXT," +
+                UpdateEntry.COLUMN_NAME_SIZE +
+                " INTEGER)"
         private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + UpdateEntry.TABLE_NAME
 
-        private fun fillContentValues(update: Update, values: ContentValues) {
+        private fun fillContentValues(
+            update: Update,
+            values: ContentValues,
+        ) {
             values.put(UpdateEntry.COLUMN_NAME_STATUS, update.persistentStatus)
             values.put(UpdateEntry.COLUMN_NAME_PATH, update.file.absolutePath)
             values.put(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID, update.downloadId)

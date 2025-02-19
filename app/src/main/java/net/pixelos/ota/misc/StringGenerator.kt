@@ -25,21 +25,32 @@ import java.util.TimeZone
 
 object StringGenerator {
     @JvmStatic
-    fun getTimeLocalized(context: Context, unixTimestamp: Long): String {
+    fun getTimeLocalized(
+        context: Context,
+        unixTimestamp: Long,
+    ): String {
         val f = DateFormat.getTimeInstance(DateFormat.SHORT, getCurrentLocale(context)!!)
         val date = Date(unixTimestamp * 1000)
         return f.format(date)
     }
 
     @JvmStatic
-    fun getDateLocalized(context: Context, dateFormat: Int, unixTimestamp: Long): String {
+    fun getDateLocalized(
+        context: Context,
+        dateFormat: Int,
+        unixTimestamp: Long,
+    ): String {
         val f = DateFormat.getDateInstance(dateFormat, getCurrentLocale(context)!!)
         val date = Date(unixTimestamp * 1000)
         return f.format(date)
     }
 
     @JvmStatic
-    fun getDateLocalizedUTC(context: Context, dateFormat: Int, unixTimestamp: Long): String {
+    fun getDateLocalizedUTC(
+        context: Context,
+        dateFormat: Int,
+        unixTimestamp: Long,
+    ): String {
         val f = DateFormat.getDateInstance(dateFormat, getCurrentLocale(context)!!)
         f.timeZone = TimeZone.getTimeZone("UTC")
         val date = Date(unixTimestamp * 1000)
@@ -47,7 +58,10 @@ object StringGenerator {
     }
 
     @JvmStatic
-    fun formatETA(context: Context, millis: Long): String {
+    fun formatETA(
+        context: Context,
+        millis: Long,
+    ): String {
         val secondInMillis: Long = 1000
         val minuteInMillis = secondInMillis * 60
         val hourInMillis = minuteInMillis * 60
@@ -64,7 +78,7 @@ object StringGenerator {
         }
     }
 
-    private fun getCurrentLocale(context: Context): Locale? {
-        return context.resources.configuration.locales.getFirstMatch(context.resources.assets.locales)
-    }
+    private fun getCurrentLocale(context: Context): Locale? =
+        context.resources.configuration.locales
+            .getFirstMatch(context.resources.assets.locales)
 }

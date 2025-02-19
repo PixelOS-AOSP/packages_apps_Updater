@@ -29,7 +29,11 @@ object FileUtils {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyFile(sourceFile: File, destFile: File, progressCallBack: ProgressCallBack?) {
+    fun copyFile(
+        sourceFile: File,
+        destFile: File,
+        progressCallBack: ProgressCallBack?,
+    ) {
         try {
             FileInputStream(sourceFile).channel.use { sourceChannel ->
                 FileOutputStream(destFile).channel.use { destChannel ->
@@ -38,7 +42,7 @@ object FileUtils {
                             CallbackByteChannel(
                                 sourceChannel,
                                 sourceFile.length(),
-                                progressCallBack
+                                progressCallBack,
                             )
                         destChannel.transferFrom(readableByteChannel, 0, sourceChannel.size())
                     } else {
@@ -62,7 +66,7 @@ object FileUtils {
     private class CallbackByteChannel(
         private val mReadableByteChannel: ReadableByteChannel,
         private val mSize: Long,
-        private val mCallback: ProgressCallBack
+        private val mCallback: ProgressCallBack,
     ) : ReadableByteChannel {
         private var mSizeRead: Long = 0
         private var mProgress = 0
@@ -72,9 +76,7 @@ object FileUtils {
             mReadableByteChannel.close()
         }
 
-        override fun isOpen(): Boolean {
-            return mReadableByteChannel.isOpen
-        }
+        override fun isOpen(): Boolean = mReadableByteChannel.isOpen
 
         @Throws(IOException::class)
         override fun read(bb: ByteBuffer): Int {

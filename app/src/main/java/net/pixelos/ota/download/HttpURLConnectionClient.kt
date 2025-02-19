@@ -30,9 +30,8 @@ class HttpURLConnectionClient(
     private val destination: File,
     private val progressListener: DownloadClient.ProgressListener?,
     private val callback: DownloadClient.DownloadCallback,
-    private val useDuplicateLinks: Boolean
+    private val useDuplicateLinks: Boolean,
 ) : DownloadClient {
-
     private var client: HttpURLConnection = URL(url).openConnection() as HttpURLConnection
     private var downloadThread: DownloadThread? = null
 
@@ -80,7 +79,9 @@ class HttpURLConnectionClient(
         override fun get(name: String): String? = client.getHeaderField(name)
     }
 
-    private inner class DownloadThread(private val resume: Boolean) : Thread() {
+    private inner class DownloadThread(
+        private val resume: Boolean,
+    ) : Thread() {
         private var totalBytes: Long = 0
         private var totalBytesRead: Long = 0
         private var curSampleBytes: Long = 0
@@ -129,7 +130,8 @@ class HttpURLConnectionClient(
                 // https://tools.ietf.org/html/rfc6249
                 // https://tools.ietf.org/html/rfc5988#section-5
                 val matcher =
-                    Pattern.compile("(?i)<(.+)>\\s*;\\s*rel=duplicate(?:.*pri=([0-9]+).*|.*)?")
+                    Pattern
+                        .compile("(?i)<(.+)>\\s*;\\s*rel=duplicate(?:.*pri=([0-9]+).*|.*)?")
                         .matcher(field)
                 if (matcher.matches()) {
                     val url = matcher.group(1)
@@ -152,8 +154,9 @@ class HttpURLConnectionClient(
                     changeClientUrl(url)
                     client.connectTimeout = 5000
                     client.connect()
-                    if (!client.responseCode.isSuccessCode())
+                    if (!client.responseCode.isSuccessCode()) {
                         throw IOException("Server replied with ${client.responseCode}")
+                    }
                     return
                 } catch (e: IOException) {
                     duplicates.poll()?.let {
@@ -217,7 +220,10 @@ class HttpURLConnectionClient(
         }
     }
 
-    private data class DuplicateLink(val url: String?, val priority: Int)
+    private data class DuplicateLink(
+        val url: String?,
+        val priority: Int,
+    )
 
     companion object {
         private const val TAG = "HttpURLConnectionClient"

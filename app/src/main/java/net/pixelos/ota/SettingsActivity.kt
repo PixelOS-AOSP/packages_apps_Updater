@@ -73,9 +73,11 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
     abstract class SettingsFragment(
         @XmlRes private val preferencesResId: Int,
     ) : PreferenceFragmentCompat() {
-
         @CallSuper
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        override fun onCreatePreferences(
+            savedInstanceState: Bundle?,
+            rootKey: String?,
+        ) {
             setPreferencesFromResource(preferencesResId, rootKey)
         }
     }
@@ -108,7 +110,10 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
         private val certifiedPropOverlayPkgName = "co.aospa.android.certifiedprops.overlay"
 
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        override fun onCreatePreferences(
+            savedInstanceState: Bundle?,
+            rootKey: String?,
+        ) {
             super.onCreatePreferences(savedInstanceState, rootKey)
 
             abPerfMode?.let {
@@ -149,7 +154,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
                     Preference.OnPreferenceChangeListener { _, newValue ->
                         SystemProperties.set(
                             Constants.UPDATE_RECOVERY_PROPERTY,
-                            newValue.toString()
+                            newValue.toString(),
                         )
                         true
                     }
@@ -209,7 +214,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
         private enum class Action {
             CHECK_UPDATES,
-            DOWNLOAD_AND_INSTALL
+            DOWNLOAD_AND_INSTALL,
         }
 
         private suspend fun checkForCertifiedPropsUpdate() {
@@ -218,7 +223,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
             val jsonStr = Downloader.asString(Utils.getCertifiedPropsURL(requireContext()))
             withContext(Dispatchers.Main) {
-
                 if (jsonStr.isNullOrEmpty()) {
                     showToast(R.string.certified_prop_download_failed)
                     checkForCertifiedProps.isEnabled = true
@@ -257,10 +261,11 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
                 if (!success) {
                     showToast(R.string.certified_prop_download_failed)
                 } else {
-                    if (installApk(path))
+                    if (installApk(path)) {
                         showToast(R.string.certified_prop_install_success)
-                    else
+                    } else {
                         showToast(R.string.certified_prop_install_failed)
+                    }
                 }
             } catch (e: Exception) {
                 showToast(R.string.snack_download_failed)
@@ -269,8 +274,8 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
             }
         }
 
-        private fun installApk(path: String): Boolean {
-            return try {
+        private fun installApk(path: String): Boolean =
+            try {
                 val packageInstaller = requireContext().packageManager.packageInstaller
                 val sessionParams =
                     PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
@@ -296,21 +301,24 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
                 e.printStackTrace()
                 false
             }
-        }
 
         private fun updateCertifiedPropsStatus(remoteVersion: Long) {
             val status = StringBuilder()
             val version: Long = getLocalVersion(requireContext(), certifiedPropOverlayPkgName)
 
             val unknownStr = resources.getString(R.string.text_download_size_unknown)
-            val versionStr: String = String.format(
-                Locale.getDefault(), resources.getString(R.string.certified_prop_info),
-                if (version > 0) version else unknownStr
-            )
-            val remoteStr: String = String.format(
-                Locale.getDefault(), resources.getString(R.string.certified_prop_remote),
-                if (remoteVersion > 0) remoteVersion else unknownStr
-            )
+            val versionStr: String =
+                String.format(
+                    Locale.getDefault(),
+                    resources.getString(R.string.certified_prop_info),
+                    if (version > 0) version else unknownStr,
+                )
+            val remoteStr: String =
+                String.format(
+                    Locale.getDefault(),
+                    resources.getString(R.string.certified_prop_remote),
+                    if (remoteVersion > 0) remoteVersion else unknownStr,
+                )
 
             status.append(versionStr)
             status.append(remoteStr)
@@ -319,12 +327,8 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
             certifiedPropStatus.summary = status.toString()
         }
 
-        private fun supportsPerfMode(): Boolean {
-            return Utils.isABDevice && resources.getBoolean(R.bool.config_ab_perf_mode)
-        }
+        private fun supportsPerfMode(): Boolean = Utils.isABDevice && resources.getBoolean(R.bool.config_ab_perf_mode)
 
-        private fun isPerfModeEnabled(isEnabled: Boolean): Boolean {
-            return supportsPerfMode() && isEnabled
-        }
+        private fun isPerfModeEnabled(isEnabled: Boolean): Boolean = supportsPerfMode() && isEnabled
     }
 }

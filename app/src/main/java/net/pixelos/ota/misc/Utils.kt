@@ -55,14 +55,10 @@ object Utils {
     private const val TAG: String = "Utils"
 
     @JvmStatic
-    fun getDownloadPath(context: Context): File {
-        return File(context.getString(R.string.download_path))
-    }
+    fun getDownloadPath(context: Context): File = File(context.getString(R.string.download_path))
 
     @JvmStatic
-    fun getCachedUpdateList(context: Context): File {
-        return File(context.cacheDir, "updates.json")
-    }
+    fun getCachedUpdateList(context: Context): File = File(context.cacheDir, "updates.json")
 
     // This should really return an UpdateBaseInfo object, but currently this only
     // used to initialize UpdateInfo objects
@@ -82,11 +78,13 @@ object Utils {
         if (SystemProperties.get(Build.VERSION.RELEASE) > update.version) {
             Log.d(
                 TAG,
-                (update.name +
+                (
+                    update.name +
                         " with version " +
                         update.version +
                         " is older than current Android version " +
-                        SystemProperties.get(Constants.PROP_BUILD_VERSION))
+                        SystemProperties.get(Constants.PROP_BUILD_VERSION)
+                ),
             )
             return false
         }
@@ -99,13 +97,14 @@ object Utils {
     }
 
     @JvmStatic
-    fun canInstall(update: UpdateBaseInfo): Boolean {
-        return update.timestamp > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)
-    }
+    fun canInstall(update: UpdateBaseInfo): Boolean = update.timestamp > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)
 
     @JvmStatic
     @Throws(IOException::class, JSONException::class)
-    fun parseJson(file: File?, compatibleOnly: Boolean): List<UpdateInfo> {
+    fun parseJson(
+        file: File?,
+        compatibleOnly: Boolean,
+    ): List<UpdateInfo> {
         val updates: MutableList<UpdateInfo> = ArrayList()
         val json: StringBuilder = StringBuilder()
         BufferedReader(FileReader(file)).use { br ->
@@ -162,7 +161,10 @@ object Utils {
     }
 
     @JvmStatic
-    fun triggerUpdate(context: Context, downloadId: String?) {
+    fun triggerUpdate(
+        context: Context,
+        downloadId: String?,
+    ) {
         val intent = Intent(context, UpdaterService::class.java)
         intent.setAction(UpdaterService.ACTION_INSTALL_UPDATE)
         intent.putExtra(UpdaterService.EXTRA_DOWNLOAD_ID, downloadId)
@@ -179,10 +181,10 @@ object Utils {
             networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         ) {
             return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB) ||
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ||
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB) ||
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ||
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
         }
         return false
     }
@@ -196,7 +198,10 @@ object Utils {
      */
     @JvmStatic
     @Throws(IOException::class, JSONException::class)
-    fun checkForNewUpdates(oldJson: File?, newJson: File?): Boolean {
+    fun checkForNewUpdates(
+        oldJson: File?,
+        newJson: File?,
+    ): Boolean {
         val oldList: List<UpdateInfo> = parseJson(oldJson, true)
         val newList: List<UpdateInfo> = parseJson(newJson, true)
 
@@ -224,7 +229,10 @@ object Utils {
      * @throws IllegalArgumentException if the given entry is not found
      */
     @JvmStatic
-    fun getZipEntryOffset(zipFile: ZipFile, entryPath: String): Long {
+    fun getZipEntryOffset(
+        zipFile: ZipFile,
+        entryPath: String,
+    ): Long {
         // Each entry has an header of (30 + n + m) bytes
         // 'n' is the length of the file name
         // 'm' is the length of the extra field
@@ -339,10 +347,9 @@ object Utils {
     val isABDevice: Boolean
         get() = SystemProperties.getBoolean(Constants.PROP_AB_DEVICE, false)
 
-    private fun isABUpdate(zipFile: ZipFile): Boolean {
-        return zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null &&
-                zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null
-    }
+    private fun isABUpdate(zipFile: ZipFile): Boolean =
+        zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null &&
+            zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null
 
     @JvmStatic
     @Throws(IOException::class)
@@ -354,13 +361,19 @@ object Utils {
     }
 
     @JvmStatic
-    fun isEncrypted(context: Context, file: File?): Boolean {
+    fun isEncrypted(
+        context: Context,
+        file: File?,
+    ): Boolean {
         val sm: StorageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
         return sm.isEncrypted(file)
     }
 
     @JvmStatic
-     fun getLocalVersion(context: Context, pkgName: String): Long {
+    fun getLocalVersion(
+        context: Context,
+        pkgName: String,
+    ): Long {
         var version: Long = -1
         try {
             val pkgInfo: PackageInfo =

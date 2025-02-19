@@ -31,7 +31,10 @@ import net.pixelos.ota.misc.StringGenerator.getDateLocalizedUTC
 import java.text.DateFormat
 
 class UpdaterReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (ACTION_INSTALL_REBOOT == intent.action) {
             val pm = context.getSystemService(PowerManager::class.java)!!
             pm.reboot(null)
@@ -72,14 +75,14 @@ class UpdaterReceiver : BroadcastReceiver() {
                 getDateLocalizedUTC(
                     context,
                     DateFormat.MEDIUM,
-                    preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0)
+                    preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0),
                 )
 
             val buildInfo =
                 context.getString(
                     R.string.list_build_version_date,
                     SystemProperties.get(Constants.PROP_BUILD_VERSION),
-                    buildDate
+                    buildDate,
                 )
 
             val notificationIntent = Intent(context, UpdatesActivity::class.java)
@@ -88,17 +91,18 @@ class UpdaterReceiver : BroadcastReceiver() {
                     context,
                     0,
                     notificationIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
 
             val notificationChannel =
                 NotificationChannel(
                     INSTALL_ERROR_NOTIFICATION_CHANNEL,
                     context.getString(R.string.update_failed_channel_title),
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_LOW,
                 )
             val builder =
-                NotificationCompat.Builder(context, INSTALL_ERROR_NOTIFICATION_CHANNEL)
+                NotificationCompat
+                    .Builder(context, INSTALL_ERROR_NOTIFICATION_CHANNEL)
                     .setContentIntent(intent)
                     .setSmallIcon(R.drawable.ic_system_update)
                     .setContentTitle(context.getString(R.string.update_failed_notification))

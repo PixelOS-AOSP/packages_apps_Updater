@@ -21,8 +21,10 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 
 class PackageInstallerStatusReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 // Handle user's install confirmation

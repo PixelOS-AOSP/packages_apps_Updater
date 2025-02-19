@@ -41,7 +41,10 @@ import java.util.Date
 import java.util.UUID
 
 class UpdatesCheckReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (Intent.ACTION_BOOT_COMPLETED == intent.action) {
             cleanupDownloadsDir(context)
         }
@@ -83,7 +86,9 @@ class UpdatesCheckReceiver : BroadcastReceiver() {
                         }
                         jsonNew.renameTo(json)
                         val currentMillis = System.currentTimeMillis()
-                        preferences.edit().putLong(Constants.PREF_LAST_UPDATE_CHECK, currentMillis)
+                        preferences
+                            .edit()
+                            .putLong(Constants.PREF_LAST_UPDATE_CHECK, currentMillis)
                             .apply()
                         // In case we set a one-shot check because of a previous failure
                         cancelUpdatesCheck(context)
@@ -99,7 +104,8 @@ class UpdatesCheckReceiver : BroadcastReceiver() {
 
         try {
             val downloadClient =
-                DownloadClient.Builder()
+                DownloadClient
+                    .Builder()
                     .setUrl(url)
                     .setDestination(jsonNew)
                     .setDownloadCallback(callback)
@@ -125,7 +131,7 @@ class UpdatesCheckReceiver : BroadcastReceiver() {
                 NotificationChannel(
                     NEW_UPDATES_NOTIFICATION_CHANNEL,
                     context.getString(R.string.new_updates_channel_title),
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_LOW,
                 )
             val notificationBuilder =
                 NotificationCompat.Builder(context, NEW_UPDATES_NOTIFICATION_CHANNEL)
@@ -136,7 +142,7 @@ class UpdatesCheckReceiver : BroadcastReceiver() {
                     context,
                     0,
                     notificationIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             notificationBuilder.setContentIntent(intent)
             notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title))
@@ -168,7 +174,7 @@ class UpdatesCheckReceiver : BroadcastReceiver() {
                 AlarmManager.RTC,
                 System.currentTimeMillis() + checkAutoUpdateTime,
                 checkAutoUpdateTime,
-                updateCheckIntent
+                updateCheckIntent,
             )
 
             val nextCheckDate = Date(System.currentTimeMillis() + checkAutoUpdateTime)

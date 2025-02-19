@@ -34,8 +34,8 @@ class Downloader {
         private const val TAG = "Downloader"
 
         @JvmStatic
-        suspend fun asString(mUrl: String): String? {
-            return withContext(Dispatchers.IO) {
+        suspend fun asString(mUrl: String): String? =
+            withContext(Dispatchers.IO) {
                 try {
                     val url = URL(mUrl)
                     val urlConn = url.openConnection() as HttpURLConnection
@@ -56,10 +56,12 @@ class Downloader {
                     null
                 }
             }
-        }
 
         @JvmStatic
-        suspend fun downloadApk(path: String?, mUrl: String?): Boolean {
+        suspend fun downloadApk(
+            path: String?,
+            mUrl: String?,
+        ): Boolean {
             if (path.isNullOrEmpty() || mUrl.isNullOrEmpty()) {
                 return false
             }

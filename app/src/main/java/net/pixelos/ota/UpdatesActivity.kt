@@ -95,7 +95,9 @@ import java.text.NumberFormat
 import java.util.UUID
 import java.util.concurrent.Executors
 
-class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
+class UpdatesActivity :
+    AppCompatActivity(),
+    UpdateImporter.Callbacks {
     private val mBottomAppBar by lazy { requireViewById<BottomAppBar>(R.id.bottomAppBar) }
     private val mCircularProgress by lazy {
         requireViewById<CircularProgressIndicator>(R.id.updateRefreshProgress)
@@ -135,7 +137,10 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
 
     private val mConnection: ServiceConnection =
         object : ServiceConnection {
-            override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            override fun onServiceConnected(
+                className: ComponentName,
+                service: IBinder,
+            ) {
                 val binder: LocalBinder = service as LocalBinder
                 mUpdaterService = binder.service
                 mUpdaterService?.let { updaterService ->
@@ -161,7 +166,10 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
 
         mBroadcastReceiver =
             object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
+                override fun onReceive(
+                    context: Context,
+                    intent: Intent,
+                ) {
                     val downloadId: String? =
                         intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID)
                     if (UpdaterController.ACTION_UPDATE_STATUS == intent.action) {
@@ -194,7 +202,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                             mSwipeRefresh.isRefreshing = false
                         }
                     },
-                    0
+                    0,
                 )
             mUpdateInfoWarning.visibility = View.GONE
             downloadUpdatesList(true)
@@ -209,25 +217,33 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
 
         // Setup insets for Edge-to-Edge compatibility
         // from SettingsLib/CollapsingToolBar/EdgeToEdgeUtils.java
-        ViewCompat.setOnApplyWindowInsetsListener(this.requireViewById(android.R.id.content)) { v: View,
-                                                                                                windowInsets: WindowInsetsCompat ->
+        ViewCompat.setOnApplyWindowInsetsListener(this.requireViewById(android.R.id.content)) {
+            v: View,
+            windowInsets: WindowInsetsCompat,
+            ->
             val insets: Insets =
                 windowInsets.getInsets(
-                    (WindowInsetsCompat.Type.systemBars() or
+                    (
+                        WindowInsetsCompat.Type.systemBars() or
                             WindowInsetsCompat.Type.ime() or
-                            WindowInsetsCompat.Type.displayCutout())
+                            WindowInsetsCompat.Type.displayCutout()
+                    ),
                 )
             val statusBarHeight: Int =
-                this.window.decorView.rootWindowInsets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+                this.window.decorView.rootWindowInsets
+                    .getInsets(WindowInsetsCompat.Type.statusBars())
+                    .top
             v.setPadding(insets.left, statusBarHeight, insets.right, insets.bottom)
             WindowInsetsCompat.CONSUMED
         }
 
-        mNestedScrollView.setOnScrollChangeListener { v: NestedScrollView,
-                                                      _: Int,
-                                                      _: Int,
-                                                      _: Int,
-                                                      _: Int ->
+        mNestedScrollView.setOnScrollChangeListener {
+            v: NestedScrollView,
+            _: Int,
+            _: Int,
+            _: Int,
+            _: Int,
+            ->
             if (!v.canScrollVertically(1)) {
                 // Prevent swipeRefresh from triggering when swiping quickly to the
                 // top
@@ -299,7 +315,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
         requestCode: Int,
         resultCode: Int,
         data: Intent?,
-        caller: ComponentCaller
+        caller: ComponentCaller,
     ) {
         if (!mUpdateImporter!!.onResult(requestCode, resultCode, data!!)) {
             super.onActivityResult(requestCode, resultCode, data, caller)
@@ -336,9 +352,10 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
             return
         }
 
-        val deleteUpdate = Runnable {
-            UpdaterController.getInstance(this).deleteUpdate(update.downloadId)
-        }
+        val deleteUpdate =
+            Runnable {
+                UpdaterController.getInstance(this).deleteUpdate(update.downloadId)
+            }
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.local_update_import)
@@ -348,11 +365,9 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                 updateUI(update.downloadId)
                 updatesList
                 triggerUpdate(this, update.downloadId)
-            }
-            .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
+            }.setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int ->
                 deleteUpdate.run()
-            }
-            .setOnCancelListener { deleteUpdate.run() }
+            }.setOnCancelListener { deleteUpdate.run() }
             .show()
     }
 
@@ -376,44 +391,54 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
         mBottomAppBar.visibility = View.VISIBLE
     }
 
-    private fun setupButtonAction(action: Action, button: MaterialButton, enabled: Boolean) {
+    private fun setupButtonAction(
+        action: Action,
+        button: MaterialButton,
+        enabled: Boolean,
+    ) {
         val clickListener: View.OnClickListener?
         when (action) {
             Action.CHECK_UPDATES -> {
                 button.setText(R.string.check_for_update)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener {
                             mUpdateInfoWarning.visibility = View.GONE
                             downloadUpdatesList(true)
                         }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.DOWNLOAD -> {
                 button.setText(R.string.action_download)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { mUpdaterController!!.startDownload(mLatestDownloadId) }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.PAUSE -> {
                 button.setText(R.string.action_pause)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { mUpdaterController!!.pauseDownload(mLatestDownloadId) }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.RESUME -> {
                 button.setText(R.string.action_resume)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { _: View? ->
                             mUpdateInfoWarning.visibility = View.GONE
                             val update: UpdateInfo =
@@ -424,14 +449,16 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                                 showUpdateInfo(R.string.snack_update_not_installable)
                             }
                         }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.INSTALL -> {
                 button.setText(R.string.action_install)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { _: View? ->
                             if (canInstall(mUpdaterController!!.getUpdate(mLatestDownloadId))) {
                                 getInstallDialog(mLatestDownloadId)!!.show()
@@ -439,36 +466,45 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                                 showUpdateInfo(R.string.snack_update_not_installable)
                             }
                         }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.DELETE -> {
                 button.setText(R.string.action_delete)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { _: View? -> getDeleteDialog(mLatestDownloadId).show() }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.CANCEL_INSTALLATION -> {
                 button.setText(R.string.action_cancel)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled)
+                    if (enabled) {
                         View.OnClickListener { _: View? ->
                             cancelInstallationDialog.show()
                             mWarnMeteredConnectionCard.visibility = View.GONE
                         }
-                    else null
+                    } else {
+                        null
+                    }
             }
 
             Action.REBOOT -> {
                 button.setText(R.string.action_reboot)
                 button.isEnabled = enabled
                 clickListener =
-                    if (enabled) View.OnClickListener { _: View? -> rebootInstallationDialog.show() }
-                    else null
+                    if (enabled) {
+                        View.OnClickListener { _: View? -> rebootInstallationDialog.show() }
+                    } else {
+                        null
+                    }
             }
         }
 
@@ -477,7 +513,10 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
     }
 
     @Throws(IOException::class, JSONException::class)
-    private fun loadUpdatesList(jsonFile: File, manualRefresh: Boolean) {
+    private fun loadUpdatesList(
+        jsonFile: File,
+        manualRefresh: Boolean,
+    ) {
         Log.d(TAG, "Adding remote updates")
         val controller: UpdaterController = mUpdaterService!!.updaterController
         var newUpdates = false
@@ -530,7 +569,11 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
             }
         }
 
-    private fun processNewJson(json: File, jsonNew: File, manualRefresh: Boolean) {
+    private fun processNewJson(
+        json: File,
+        jsonNew: File,
+        manualRefresh: Boolean,
+    ) {
         try {
             loadUpdatesList(jsonNew, manualRefresh)
             val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -602,7 +645,8 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
         val downloadClient: DownloadClient
         try {
             downloadClient =
-                DownloadClient.Builder()
+                DownloadClient
+                    .Builder()
                     .setUrl(url)
                     .setDestination(jsonFileTmp)
                     .setDownloadCallback(callback)
@@ -668,7 +712,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
             getString(
                 R.string.header_last_updates_check,
                 getDateLocalized(this, DateFormat.LONG, lastCheck),
-                getTimeLocalized(this, lastCheck)
+                getTimeLocalized(this, lastCheck),
             )
         val headerLastCheck: TextView = requireViewById(R.id.lastSuccessfulCheck)
         headerLastCheck.text = lastCheckString
@@ -712,9 +756,9 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
 
         val activeLayout: Boolean =
             update.persistentStatus == UpdateStatus.Persistent.INCOMPLETE ||
-                    update.status == UpdateStatus.STARTING ||
-                    update.status == UpdateStatus.INSTALLING ||
-                    mUpdaterController!!.isVerifyingUpdate
+                update.status == UpdateStatus.STARTING ||
+                update.status == UpdateStatus.INSTALLING ||
+                mUpdaterController!!.isVerifyingUpdate
 
         if (activeLayout) {
             handleActiveStatus(update)
@@ -758,9 +802,13 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                 showCancelButton = false
             }
             mProgressText.setText(
-                if (notAB) R.string.dialog_prepare_zip_message
-                else if (update.finalizing) R.string.finalizing_package
-                else R.string.preparing_ota_first_boot
+                if (notAB) {
+                    R.string.dialog_prepare_zip_message
+                } else if (update.finalizing) {
+                    R.string.finalizing_package
+                } else {
+                    R.string.preparing_ota_first_boot
+                },
             )
             mProgressPercent.text =
                 NumberFormat.getPercentInstance().format((update.installProgress / 100f).toDouble())
@@ -791,7 +839,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
         setupButtonAction(
             if (canDelete) Action.DELETE else Action.CANCEL_INSTALLATION,
             mSecondaryActionButton,
-            !isBusy
+            !isBusy,
         )
         mSecondaryActionButton.visibility = if (showCancelButton) View.VISIBLE else View.GONE
 
@@ -835,16 +883,16 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
     private val isBusy: Boolean
         get() =
             mUpdaterController!!.hasActiveDownloads() ||
-                    mUpdaterController!!.isVerifyingUpdate ||
-                    mUpdaterController!!.isInstallingUpdate
+                mUpdaterController!!.isVerifyingUpdate ||
+                mUpdaterController!!.isInstallingUpdate
 
     private fun showUpdateInfo(stringId: Int) {
         mUpdateInfoWarning.visibility = View.VISIBLE
         mUpdateInfoWarning.setText(stringId)
     }
 
-    private fun getDeleteDialog(downloadId: String?): MaterialAlertDialogBuilder {
-        return MaterialAlertDialogBuilder(this)
+    private fun getDeleteDialog(downloadId: String?): MaterialAlertDialogBuilder =
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.confirm_delete_dialog_title)
             .setMessage(R.string.confirm_delete_dialog_message)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
@@ -854,9 +902,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                 mSecondaryActionButton.visibility = View.GONE
                 mUpdateInfoWarning.visibility = View.GONE
                 mSwipeRefresh.isEnabled = true
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-    }
+            }.setNegativeButton(android.R.string.cancel, null)
 
     private fun getInstallDialog(downloadId: String?): MaterialAlertDialogBuilder? {
         if (!isBatteryLevelOk) {
@@ -865,7 +911,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                 resources.getString(
                     R.string.dialog_battery_low_message_pct,
                     resources.getInteger(R.integer.battery_ok_percentage_discharging),
-                    resources.getInteger(R.integer.battery_ok_percentage_charging)
+                    resources.getInteger(R.integer.battery_ok_percentage_charging),
                 )
             return MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_battery_low_title)
@@ -899,8 +945,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
             .setMessage(getString(resId, buildInfoText, getString(android.R.string.ok)))
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 triggerUpdate(this, downloadId)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
+            }.setNegativeButton(android.R.string.cancel, null)
     }
 
     private val rebootInstallationDialog: MaterialAlertDialogBuilder
@@ -910,8 +955,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                 .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                     val pm: PowerManager = getSystemService(PowerManager::class.java)!!
                     pm.reboot(null)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+                }.setNegativeButton(android.R.string.cancel, null)
         }
 
     private val cancelInstallationDialog: MaterialAlertDialogBuilder
@@ -923,8 +967,7 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
                     intent.setAction(UpdaterService.ACTION_INSTALL_STOP)
                     startService(intent)
                     mSecondaryActionButton.visibility = View.GONE
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+                }.setNegativeButton(android.R.string.cancel, null)
         }
 
     private val isBatteryLevelOk: Boolean
@@ -937,13 +980,15 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
             val percent: Int =
                 Math.round(
                     100f * intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) /
-                            intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                        intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100),
                 )
             val plugged: Int = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
             val required: Int =
-                if ((plugged and BATTERY_PLUGGED_ANY) != 0)
+                if ((plugged and BATTERY_PLUGGED_ANY) != 0) {
                     resources.getInteger(R.integer.battery_ok_percentage_charging)
-                else resources.getInteger(R.integer.battery_ok_percentage_discharging)
+                } else {
+                    resources.getInteger(R.integer.battery_ok_percentage_discharging)
+                }
             return percent >= required
         }
 
@@ -961,17 +1006,21 @@ class UpdatesActivity : AppCompatActivity(), UpdateImporter.Callbacks {
     companion object {
         private const val TAG: String = "UpdatesActivity"
         private const val BATTERY_PLUGGED_ANY: Int =
-            (BatteryManager.BATTERY_PLUGGED_AC or
+            (
+                BatteryManager.BATTERY_PLUGGED_AC or
                     BatteryManager.BATTERY_PLUGGED_USB or
-                    BatteryManager.BATTERY_PLUGGED_WIRELESS)
+                    BatteryManager.BATTERY_PLUGGED_WIRELESS
+            )
         private val isScratchMounted: Boolean
             get() {
                 try {
                     Files.lines(Path.of("/proc/mounts")).use { lines ->
                         return lines.anyMatch { x: String ->
-                            x.split(" ".toRegex()).dropLastWhile { it.isEmpty() }
+                            x
+                                .split(" ".toRegex())
+                                .dropLastWhile { it.isEmpty() }
                                 .toTypedArray()[1] ==
-                                    "/mnt/scratch"
+                                "/mnt/scratch"
                         }
                     }
                 } catch (e: IOException) {

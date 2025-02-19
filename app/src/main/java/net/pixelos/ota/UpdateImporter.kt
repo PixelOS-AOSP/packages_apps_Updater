@@ -38,7 +38,10 @@ import java.nio.charset.StandardCharsets
 import java.text.DateFormat
 import java.util.zip.ZipFile
 
-class UpdateImporter(private val activity: Activity, private val callbacks: Callbacks) {
+class UpdateImporter(
+    private val activity: Activity,
+    private val callbacks: Callbacks,
+) {
     private var workingThread: Thread? = null
 
     fun stopImport() {
@@ -50,12 +53,17 @@ class UpdateImporter(private val activity: Activity, private val callbacks: Call
 
     fun openImportPicker() {
         val intent =
-            Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+            Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType(MIME_ZIP)
         activity.startActivityForResult(intent, REQUEST_PICK)
     }
 
-    fun onResult(requestCode: Int, resultCode: Int, data: Intent): Boolean {
+    fun onResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent,
+    ): Boolean {
         if (resultCode != Activity.RESULT_OK || requestCode != REQUEST_PICK) {
             return false
         }
@@ -66,23 +74,24 @@ class UpdateImporter(private val activity: Activity, private val callbacks: Call
     private fun onPicked(uri: Uri): Boolean {
         callbacks.onImportStarted()
 
-        workingThread = Thread {
-            var importedFile: File? = null
-            try {
-                importedFile = importFile(uri)
-                verifyPackage(importedFile)
+        workingThread =
+            Thread {
+                var importedFile: File? = null
+                try {
+                    importedFile = importFile(uri)
+                    verifyPackage(importedFile)
 
-                val update = buildLocalUpdate(importedFile)
-                addUpdate(update)
-                activity.runOnUiThread { callbacks.onImportCompleted(update) }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to import update package", e)
-                // Do not store invalid update
-                importedFile?.delete()
+                    val update = buildLocalUpdate(importedFile)
+                    addUpdate(update)
+                    activity.runOnUiThread { callbacks.onImportCompleted(update) }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to import update package", e)
+                    // Do not store invalid update
+                    importedFile?.delete()
 
-                activity.runOnUiThread { callbacks.onImportCompleted(null) }
+                    activity.runOnUiThread { callbacks.onImportCompleted(null) }
+                }
             }
-        }
         workingThread!!.start()
         return true
     }
